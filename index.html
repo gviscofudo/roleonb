@@ -66,7 +66,7 @@
 
   .waiter{ position:absolute; width: 11%; aspect-ratio:1/1; transform: translate(-50%,-50%); z-index: 5;
     transition: left 0.7s ease-in-out, top 0.7s ease-in-out; display:flex; align-items:center; justify-content:center;
-    border-radius:50%; background: var(--orange); box-shadow: 0 8px 16px -8px rgba(255,90,31,0.6), 0 0 0 3px #fff; font-size: 17px; }
+    font-size: 26px; filter: drop-shadow(0 6px 6px rgba(0,0,0,0.35)); }
   .waiter.walking{ animation: bob 0.32s ease-in-out infinite; }
   @keyframes bob{ 0%,100%{ transform: translate(-50%,-50%) translateY(0); } 50%{ transform: translate(-50%,-50%) translateY(-8%); } }
 
@@ -97,6 +97,10 @@
   .btn.primary{ background: var(--orange); }
   .btn.primary:hover{ background: var(--orange-dark); }
   .btn.hidden{ display:none; }
+  .btn-skip{ display:block; width:100%; text-align:center; background:transparent; border:none; color:var(--ink3);
+    font-family:inherit; font-size:12px; font-weight:600; cursor:pointer; padding:10px 0 0; text-decoration:underline; }
+  .btn-skip:hover{ color:var(--orange-dark); }
+  .btn-skip.hidden{ display:none; }
   .btn:disabled{ opacity:0.5; cursor:not-allowed; }
   .field{ margin-bottom: 14px; }
   .field label{ display:block; font-size:12px; font-weight:700; margin-bottom:5px; color: var(--ink3); }
@@ -381,8 +385,15 @@ function openScenario(id){
       <div id="scenarioOpts">${optsHtml}</div>
       <div class="feedback" id="scenarioFeedback">Elección registrada.</div>
       <button class="btn hidden" id="scenarioNext" onclick="closeScenario(${id})">Volver al salón →</button>
+      <button class="btn-skip" id="scenarioSkip" onclick="skipScenario(${id})">Saltar esta mesa →</button>
     </div>
   `);
+}
+function skipScenario(id){
+  const s = singleScenes[id];
+  choiceLog.push({ scene:s.scene, choice:"(Saltada)" });
+  synthesisLog.push({ skill:s.skillLabel, scene:s.scene, choice:"(Saltada)", note:"El candidato optó por saltar esta mesa sin responder." });
+  closeScenario(id);
 }
 function answerScenario(id, idx){
   const s = singleScenes[id];
@@ -393,6 +404,7 @@ function answerScenario(id, idx){
   document.querySelectorAll("#scenarioOpts .opt").forEach((btn,i) => { btn.disabled=true; if(i===idx) btn.classList.add("chosen"); });
   document.getElementById("scenarioFeedback").classList.add("show");
   document.getElementById("scenarioNext").classList.remove("hidden");
+  document.getElementById("scenarioSkip").classList.add("hidden");
 }
 function closeScenario(id){
   hideOverlay(); setDone(id);
@@ -419,11 +431,18 @@ function renderRush(){
       <p class="body">Tres clientes te necesitan al mismo tiempo. Hacé clic en el orden en que los atenderías.</p>
       <ul class="rush-list">${items}</ul>
       <button class="btn hidden" id="rushNext" onclick="closeRush()">Volver al salón →</button>
+      <button class="btn-skip" id="rushSkip" onclick="skipRush()">Saltar esta mesa →</button>
     </div>
   `);
   if(rushPicked.length === 3){
     document.getElementById("rushNext").classList.remove("hidden");
+    document.getElementById("rushSkip").classList.add("hidden");
   }
+}
+function skipRush(){
+  choiceLog.push({ scene:"Hora pico (priorización)", choice:"(Saltada)" });
+  synthesisLog.push({ skill:"Priorización", scene:"Hora pico", choice:"(Saltada)", note:"El candidato optó por saltar esta mesa sin responder." });
+  hideOverlay(); setDone(8); finishGame();
 }
 function pickRush(id){
   if(rushPicked.includes(id)) return;
