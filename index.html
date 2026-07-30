@@ -38,23 +38,25 @@
     background: var(--bg-dark); border-radius: 10px; display:flex; align-items:center; justify-content:center;
     font-size: 11.5px; font-weight:700; color: var(--fudo-orange); z-index:2; }
 
-  .table{ position:absolute; width: 15%; aspect-ratio: 1/1; transform: translate(-50%,-50%); z-index:3; cursor: default;
+  .table{ position:absolute; width: 19%; aspect-ratio: 1/1; transform: translate(-50%,-50%); z-index:3; cursor: default;
     transition: opacity 0.3s ease, transform 0.2s ease; }
-  .table .top{ width:100%; height:100%; border-radius: 20%; background: var(--card-white); border: 2.5px solid var(--line);
-    display:flex; align-items:center; justify-content:center; flex-direction: column; font-weight:800; color: var(--ink);
-    font-size: 15px; box-shadow: 0 8px 18px -10px rgba(0,0,0,0.25); position:relative; transition: all 0.2s ease; }
-  .table .top .icon{ font-size: 15px; line-height:1; margin-bottom:2px; opacity:0.55; }
-  .table .chair{ position:absolute; width:16%; height:16%; background: #C7CBD1; border-radius: 4px; }
-  .table .chair.c1{ top:-11%; left:42%; } .table .chair.c2{ bottom:-11%; left:42%; }
-  .table .chair.c3{ left:-11%; top:42%; } .table .chair.c4{ right:-11%; top:42%; }
-  .table.idle .top{ opacity:0.55; }
+  .table .top{ width:100%; height:100%; border-radius: 22%; background: var(--card-white); border: 3px solid var(--line);
+    display:flex; align-items:center; justify-content:center; flex-direction: column; gap: 4px; color: var(--ink);
+    box-shadow: 0 10px 22px -10px rgba(0,0,0,0.28); position:relative; transition: all 0.2s ease; }
+  .table .icon{ font-size: 22px; line-height:1; opacity:0.6; }
+  .table .table-label{ font-weight:800; font-size: 13px; letter-spacing:0.2px; }
+  .table .chair{ position:absolute; width:14%; height:14%; background: #C7CBD1; border-radius: 4px; }
+  .table .chair.c1{ top:-10%; left:43%; } .table .chair.c2{ bottom:-10%; left:43%; }
+  .table .chair.c3{ left:-10%; top:43%; } .table .chair.c4{ right:-10%; top:43%; }
+  .table.idle .top{ opacity:0.5; }
   .table.active .top{ border-color: var(--fudo-orange); background: var(--fudo-orange-light); animation: glow 1.3s ease-in-out infinite; }
-  .table.active .top .icon{ opacity:1; }
-  .table.done .top{ border-color: var(--green); background: var(--green-light); opacity: 0.85; }
+  .table.active .icon{ opacity:1; }
+  .table.done .top{ border-color: var(--green); background: var(--green-light); opacity: 0.9; }
+  .table.done .table-label{ color: var(--green); }
   .table.clickable{ cursor:pointer; }
-  .table.clickable:hover .top{ transform: scale(1.08); }
-  @keyframes glow{ 0%,100%{ box-shadow: 0 8px 18px -10px rgba(0,0,0,0.25), 0 0 0px rgba(255,90,31,0.0); }
-    50%{ box-shadow: 0 8px 18px -10px rgba(0,0,0,0.25), 0 0 0 6px rgba(255,90,31,0.18); } }
+  .table.clickable:hover .top{ transform: scale(1.07); box-shadow: 0 14px 26px -10px rgba(255,90,31,0.35); }
+  @keyframes glow{ 0%,100%{ box-shadow: 0 10px 22px -10px rgba(0,0,0,0.28), 0 0 0px rgba(255,90,31,0.0); }
+    50%{ box-shadow: 0 10px 22px -10px rgba(0,0,0,0.28), 0 0 0 7px rgba(255,90,31,0.18); } }
 
   .call-badge{ position:absolute; top:-24%; left:50%; transform: translateX(-50%); background: var(--fudo-orange); color: #fff;
     font-size: 9.5px; font-weight:700; padding: 3px 8px; border-radius: 20px; white-space: nowrap; display:none; }
@@ -170,14 +172,14 @@ const singleScenes = {
     scene:"Mesa 3 — Una duda que no se resuelve a la primera",
     body:"Un cliente con dos sucursales te pide copiar la configuración de una a la otra. Le explicás el proceso paso a paso, pero responde \"no\" cuando le preguntás si eso resolvió su duda, y después escribe: \"asistencia necesito.\"",
     options:[
+      {text:"Le preguntás primero qué parte no le quedó clara, antes de reexplicar.", tags:{resolucion:2},
+        note:"Entender específicamente qué no quedó claro evita repetir información que ya no le sirvió."},
       {text:"Lo derivás directo a un compañero, sin intentar entender qué no entendió.", tags:{resolucion:0},
         note:"Derivar sin indagar deja la sensación de que nadie escuchó realmente cuál era el problema."},
       {text:"Le repetís exactamente la misma explicación técnica, con las mismas palabras, por si no la leyó bien.", tags:{resolucion:0},
         note:"Repetir lo mismo cuando ya no funcionó la primera vez suele sumar frustración, no resolverla."},
       {text:"Le mandás de nuevo la misma explicación, pero remarcada en negrita para que se note más.", tags:{resolucion:0},
         note:"El problema no era visual — resaltar el texto no cambia si el contenido en sí se entendió o no."},
-      {text:"Le preguntás primero qué parte no le quedó clara, antes de reexplicar.", tags:{resolucion:2},
-        note:"Entender específicamente qué no quedó claro evita repetir información que ya no le sirvió."},
     ]},
   4: { skill:"negociacion", skillLabel:"Negociación y manejo de objeciones",
     scene:"Mesa 4 — \"La competencia cobra menos\"",
@@ -198,12 +200,12 @@ const singleScenes = {
     options:[
       {text:"Esperás a que lo note solo, porque no te consultó nada y no querés parecer que estás vendiendo de más.", tags:{orientacion:0},
         note:"Esperar a que el cliente descubra el problema solo, cuando ya lo viste venir, deja pasar una oportunidad real de cuidarlo."},
-      {text:"Se lo mencionás de pasada, sin explicarle bien por qué le conviene revisarlo, para no sonar invasivo.", tags:{orientacion:1},
-        note:"Avisar sin explicar el motivo cumple el trámite, pero es probable que no entienda la urgencia y no actúe a tiempo."},
       {text:"Le cambiás vos mismo el plan a uno superior sin avisarle, para evitarle el problema.", tags:{orientacion:0},
         note:"Tomar una decisión así sin el consentimiento del cliente genera más problemas de los que resuelve."},
       {text:"Le explicás con datos concretos por qué el plan actual se le va a quedar chico y qué alternativa le convendría, dejando la decisión en sus manos.", tags:{orientacion:2},
         note:"Avisar proactivamente, con argumentos y sin decidir por él, es la esencia de la orientación al cliente."},
+      {text:"Se lo mencionás de pasada, sin explicarle bien por qué le conviene revisarlo, para no sonar invasivo.", tags:{orientacion:1},
+        note:"Avisar sin explicar el motivo cumple el trámite, pero es probable que no entienda la urgencia y no actúe a tiempo."},
     ]},
   6: { skill:"adaptabilidad", skillLabel:"Adaptabilidad",
     scene:"Mesa 6 — Cambio de planes de último momento",
@@ -273,7 +275,7 @@ function buildTables(){
     div.id = "table-" + id;
     div.style.left = pos.x + "%";
     div.style.top = pos.y + "%";
-    div.innerHTML = `<div class="top"><span class="icon">🍽️</span><span>M${id}</span>
+    div.innerHTML = `<div class="top"><span class="icon">🍽️</span><span class="table-label">Mesa ${id}</span>
       <div class="call-badge">¡TE LLAMA!</div><div class="done-check">✓</div></div>
       <div class="chair c1"></div><div class="chair c2"></div><div class="chair c3"></div><div class="chair c4"></div>`;
     div.addEventListener("click", () => onTableClick(parseInt(id)));
@@ -447,9 +449,7 @@ function finishGame(){
 
   showOverlay(`
     <div class="card">
-      <div class="eyebrow">Turno finalizado</div>
-      <h2>¡Gracias, ${candidate.name.split(" ")[0]}!</h2>
-      <p class="body">Completaste el turno de prueba. Tu responsable de selección va a revisar los resultados y se va a poner en contacto con vos.</p>
+      <h2>¡Gracias por tu tiempo! 🙌</h2>
     </div>
   `);
 
