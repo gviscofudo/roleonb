@@ -64,9 +64,9 @@
     border:2.5px solid var(--bg); }
   .table.done .done-check{ display:flex; }
 
-  .waiter{ position:absolute; width: 8%; aspect-ratio:1/1; transform: translate(-50%,-50%); z-index: 5;
+  .waiter{ position:absolute; width: 11%; aspect-ratio:1/1; transform: translate(-50%,-50%); z-index: 5;
     transition: left 0.7s ease-in-out, top 0.7s ease-in-out; display:flex; align-items:center; justify-content:center;
-    border-radius:50%; background: var(--orange); box-shadow: 0 8px 16px -8px rgba(255,90,31,0.6), 0 0 0 3px #fff; font-size: 13px; }
+    border-radius:50%; background: var(--orange); box-shadow: 0 8px 16px -8px rgba(255,90,31,0.6), 0 0 0 3px #fff; font-size: 17px; }
   .waiter.walking{ animation: bob 0.32s ease-in-out infinite; }
   @keyframes bob{ 0%,100%{ transform: translate(-50%,-50%) translateY(0); } 50%{ transform: translate(-50%,-50%) translateY(-8%); } }
 
@@ -155,7 +155,7 @@ const TABLE_POS = {
   5:{x:64,y:85},
   6:{x:82,y:70},
 };
-const BARRA_POS = { x: 50, y: 97 };
+const BARRA_POS = { x: 20, y: 13 };
 const TOTAL_TABLES = Object.keys(TABLE_POS).length;
 
 const singleScenes = {
