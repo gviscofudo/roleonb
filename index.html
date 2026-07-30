@@ -132,7 +132,7 @@
 <div class="app">
   <div class="hud">
     <div class="hud-left">La Maldo</div>
-    <div class="hud-right" id="hudStatus">Mesas atendidas: 0/8</div>
+    <div class="hud-right" id="hudStatus">Mesas atendidas: 0/10</div>
   </div>
   <div class="floor-card">
     <div class="sec-lbl">Salón</div>
@@ -158,6 +158,8 @@ const TABLE_POS = {
   4:{x:40,y:85},
   5:{x:64,y:85},
   6:{x:82,y:70},
+  9:{x:62,y:18},
+  10:{x:86,y:18},
 };
 const BARRA_POS = { x: 20, y: 13 };
 const TOTAL_TABLES = Object.keys(TABLE_POS).length;
@@ -254,6 +256,32 @@ const singleScenes = {
       {text:"Le pedís que espere mientras resolvés primero las otras conversaciones pendientes.", tags:{presion:0},
         note:"Dejarlo en pausa por completo mientras ya está confundido y a mitad de camino aumenta el riesgo de que abandone."},
     ]},
+  9: { skill:"ia", skillLabel:"Uso de IA",
+    scene:"Mesa 9 — Herramientas de IA en el día a día",
+    body:"Tenés acceso a una herramienta de IA (tipo ChatGPT) para tu trabajo diario con clientes. Un cliente te escribe una consulta larga y algo confusa.",
+    options:[
+      {text:"Le copiás y pegás la respuesta que te generó la IA tal cual, sin revisarla, para responder más rápido.", tags:{ia:0},
+        note:"Responder sin revisar lo que generó la IA puede llevar a errores o a un tono que no encaja con el cliente."},
+      {text:"Usás la IA para ordenar tus ideas o armar un borrador, pero revisás y ajustás la respuesta antes de mandarla.", tags:{ia:2},
+        note:"Usar la IA como apoyo sin perder la revisión final es el uso más efectivo — acelera sin resignar criterio propio."},
+      {text:"No usás la IA para nada relacionado a clientes, preferís escribir todo de cero siempre.", tags:{ia:1},
+        note:"Es una postura prudente, pero deja pasar una herramienta que podría ahorrar tiempo sin resignar calidad."},
+      {text:"Dejás que la IA responda directamente al cliente dentro del chat, sin que vos la veas antes.", tags:{ia:0},
+        note:"Automatizar por completo sin ningún control humano expone a errores que después son más difíciles de reparar."},
+    ]},
+  10: { skill:"agilidad", skillLabel:"Enfoque ágil",
+    scene:"Mesa 10 — Organización del trabajo",
+    body:"Tenés varias tareas y prioridades que cambian todo el tiempo en tu semana. En medio de una tarea ya planificada, un cliente te pide algo urgente.",
+    options:[
+      {text:"Vas resolviendo todo en el momento en que te lo piden, sin un orden definido.", tags:{agilidad:1},
+        note:"Resolver todo sobre la marcha puede funcionar en el corto plazo, pero sin ningún orden es difícil sostenerlo cuando crece la carga."},
+      {text:"Terminás siempre primero lo que ya tenías planificado, sin importar cuán urgente sea lo nuevo.", tags:{agilidad:0},
+        note:"Ser rígido con lo planificado, aun cuando surge algo con impacto real, puede hacer que se pierda una urgencia genuina."},
+      {text:"Tenés un sistema para priorizar (lista, tablero, sprint corto) y reacomodás las tareas según impacto y urgencia, sin perder de vista lo planificado.", tags:{agilidad:2},
+        note:"Tener un sistema de priorización que se pueda reacomodar es la esencia de un enfoque ágil: adaptarse sin perder el control del conjunto."},
+      {text:"Hacés todo en simultáneo, alternando entre tareas constantemente para no atrasar ninguna.", tags:{agilidad:1},
+        note:"Alternar constantemente entre tareas suele fragmentar la atención y termina atrasando más de una cosa a la vez."},
+    ]},
 };
 
 const rushNotes = {
@@ -271,9 +299,10 @@ const rushOptions = [
 const SKILL_LABELS = {
   comunicacion:"Comunicación", empatia:"Empatía / escucha activa", resolucion:"Resolución de problemas",
   negociacion:"Negociación y objeciones", orientacion:"Orientación al cliente",
-  adaptabilidad:"Adaptabilidad", presion:"Trabajo bajo presión", priorizacion:"Priorización"
+  adaptabilidad:"Adaptabilidad", presion:"Trabajo bajo presión", priorizacion:"Priorización",
+  ia:"Uso de IA", agilidad:"Enfoque ágil"
 };
-const SKILL_MAX = { comunicacion:2, empatia:2, resolucion:2, negociacion:2, orientacion:2, adaptabilidad:2, presion:2, priorizacion:2 };
+const SKILL_MAX = { comunicacion:2, empatia:2, resolucion:2, negociacion:2, orientacion:2, adaptabilidad:2, presion:2, priorizacion:2, ia:2, agilidad:2 };
 
 let scores = {}; Object.keys(SKILL_LABELS).forEach(k => scores[k] = 0);
 let choiceLog = [];
@@ -409,6 +438,7 @@ function answerScenario(id, idx){
 function closeScenario(id){
   hideOverlay(); setDone(id);
   if(id === 7){ setTimeout(() => activateTable(8), 300); }
+  else if(id === 10){ setTimeout(() => finishGame(), 300); }
   else { setTimeout(() => activateTable(id+1), 300); }
 }
 
@@ -442,7 +472,7 @@ function renderRush(){
 function skipRush(){
   choiceLog.push({ scene:"Hora pico (priorización)", choice:"(Saltada)" });
   synthesisLog.push({ skill:"Priorización", scene:"Hora pico", choice:"(Saltada)", note:"El candidato optó por saltar esta mesa sin responder." });
-  hideOverlay(); setDone(8); finishGame();
+  hideOverlay(); setDone(8); setTimeout(() => activateTable(9), 300);
 }
 function pickRush(id){
   if(rushPicked.includes(id)) return;
@@ -455,7 +485,7 @@ function pickRush(id){
   choiceLog.push({ scene:"Hora pico (priorización)", choice:`Posición ${rushPicked.length}: ${opt.label}` });
   renderRush();
 }
-function closeRush(){ hideOverlay(); setDone(8); finishGame(); }
+function closeRush(){ hideOverlay(); setDone(8); setTimeout(() => activateTable(9), 300); }
 
 // ---- Cierre (scoring oculto, no se muestra al candidato) ----
 function buildOverallSummary(pctByskill){
