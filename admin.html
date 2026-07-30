@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin — El Salón</title>
+<style>
+  :root{
+    --fudo-orange: #FF5A1F; --fudo-orange-dark:#E1490F; --fudo-orange-light:#FFE4D6;
+    --bg-dark:#15171C; --ink:#191B1F; --ink-soft:#6B7280; --line:#E5E7EB; --green:#16A34A; --green-light:#DCFCE7;
+  }
+  *{ box-sizing:border-box; }
+  body{ margin:0; background:#F3F4F6; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif; color:var(--ink); }
+  .wrap{ max-width: 960px; margin: 0 auto; padding: 24px 16px 60px; }
+  .hud{ display:flex; justify-content:space-between; align-items:center; padding: 14px 20px; background: var(--bg-dark);
+    border-radius: 12px; margin-bottom: 20px; color:#fff; font-weight:800; }
+  .hud .dot{ width:9px;height:9px;border-radius:50%;background:var(--fudo-orange); display:inline-block; margin-right:8px; box-shadow:0 0 8px var(--fudo-orange); }
+  .login-box{ max-width: 360px; margin: 80px auto; background:#fff; border-radius:16px; padding: 28px; box-shadow: 0 20px 50px -20px rgba(0,0,0,0.3); }
+  .login-box h2{ margin-top:0; }
+  .login-box input{ width:100%; padding:12px 14px; border:1.5px solid var(--line); border-radius:10px; font-size:14px; margin-bottom:14px; }
+  .login-box button{ width:100%; background: var(--fudo-orange); color:#fff; border:none; padding:12px; border-radius:10px;
+    font-weight:700; cursor:pointer; font-size:13px; }
+  .login-box button:hover{ background: var(--fudo-orange-dark); }
+  .error{ color:#C0392B; font-size:12.5px; margin-bottom:10px; display:none; }
+  table{ width:100%; border-collapse:collapse; background:#fff; border-radius:12px; overflow:hidden; box-shadow:0 10px 30px -20px rgba(0,0,0,0.3); }
+  th,td{ text-align:left; padding: 12px 14px; font-size:13.5px; border-bottom:1px solid var(--line); }
+  th{ background:#FAFAFB; font-weight:700; color:var(--ink-soft); text-transform:uppercase; font-size:11px; letter-spacing:0.5px; }
+  tr:hover td{ background:#FAFAFB; cursor:pointer; }
+  .score-pill{ display:inline-block; padding:3px 10px; border-radius:20px; font-weight:700; font-size:12.5px; }
+  .score-high{ background: var(--green-light); color: var(--green); }
+  .score-mid{ background: #FFF4D6; color:#92700A; }
+  .score-low{ background:#FEE2E2; color:#B91C1C; }
+  .detail{ display:none; background:#fff; border-radius:12px; padding:20px; margin-top:16px; box-shadow:0 10px 30px -20px rgba(0,0,0,0.3); }
+  .detail.show{ display:block; }
+  .bar-row{ margin-bottom:12px; }
+  .bar-label{ display:flex; justify-content:space-between; font-size:12px; font-weight:600; margin-bottom:5px; }
+  .bar-track{ background:#EDEEF0; height:9px; border-radius:5px; overflow:hidden; border:1px solid var(--line); }
+  .bar-fill{ height:100%; background: var(--fudo-orange); }
+  .choices{ margin-top:16px; font-size:12.5px; line-height:1.6; white-space:pre-wrap; background:#FAFAFB; border-radius:10px; padding:14px; max-height:260px; overflow-y:auto; }
+  .empty{ text-align:center; padding:40px; color:var(--ink-soft); }
+  .refresh{ background:transparent; border:1px solid var(--ink); color:var(--ink); padding:8px 14px; border-radius:8px; cursor:pointer; font-size:12.5px; font-weight:700; }
+</style>
+</head>
+<body>
+<div id="loginScreen" class="wrap">
+  <div class="login-box">
+    <h2>🔒 Panel de admin</h2>
+    <p style="color:var(--ink-soft); font-size:13px;">Ingresá la contraseña para ver los resultados.</p>
+    <div class="error" id="loginError">Contraseña incorrecta.</div>
+    <input id="passInput" type="password" placeholder="Contraseña" onkeydown="if(event.key==='Enter') doLogin()">
+    <button onclick="doLogin()">Entrar</button>
+  </div>
+</div>
+
+<div id="adminScreen" class="wrap" style="display:none;">
+  <div class="hud"><span><span class="dot"></span>FUDO · Panel de Admin — El Salón</span>
+    <button class="refresh" onclick="loadResults()">↻ Actualizar</button></div>
+  <div id="tableWrap"></div>
+  <div id="detailBox" class="detail"></div>
+</div>
+
+<script>
+const FUNCTION_URL = "https://xkqopmcfwxpajbvjgclg.supabase.co/functions/v1/roleonb-admin";
+const SKILL_LABELS = {
+  comunicacion:"Comunicación", empatia:"Empatía", escucha:"Escucha activa", resolucion:"Resolución de problemas",
+  negociacion:"Negociación", objeciones:"Manejo de objeciones", orientacion:"Orientación al cliente",
+  adaptabilidad:"Adaptabilidad", presion:"Trabajo bajo presión", priorizacion:"Priorización"
+};
+const SKILL_MAX = { comunicacion:2, empatia:2, escucha:2, resolucion:2, negociacion:2, objeciones:2, orientacion:2, adaptabilidad:2, presion:2, priorizacion:2 };
+
+let currentPass = "";
+let results = [];
+
+function doLogin(){
+  const pass = document.getElementById("passInput").value;
+  currentPass = pass;
+  loadResults();
+}
+
+async function loadResults(){
+  try{
+    const res = await fetch(`${FUNCTION_URL}?pass=${encodeURIComponent(currentPass)}`);
+    const data = await res.json();
+    if(!res.ok){
+      document.getElementById("loginError").style.display = "block";
+      return;
+    }
+    document.getElementById("loginError").style.display = "none";
+    document.getElementById("loginScreen").style.display = "none";
+    document.getElementById("adminScreen").style.display = "block";
+    results = data.results || [];
+    renderTable();
+  } catch(err){
+    document.getElementById("loginError").textContent = "Error de conexión. Probá de nuevo.";
+    document.getElementById("loginError").style.display = "block";
+  }
+}
+
+function scoreClass(score){
+  if(score >= 70) return "score-high";
+  if(score >= 45) return "score-mid";
+  return "score-low";
+}
+
+function renderTable(){
+  const wrap = document.getElementById("tableWrap");
+  if(results.length === 0){
+    wrap.innerHTML = `<div class="empty">Todavía no hay candidatos registrados.</div>`;
+    return;
+  }
+  const rows = results.map((r,i) => `
+    <tr onclick="showDetail(${i})">
+      <td>${r.candidate_name}</td>
+      <td>${r.candidate_email}</td>
+      <td><span class="score-pill ${scoreClass(r.total_score)}">${r.total_score}%</span></td>
+      <td>${new Date(r.created_at).toLocaleString("es-AR")}</td>
+    </tr>
+  `).join("");
+  wrap.innerHTML = `
+    <table>
+      <thead><tr><th>Nombre</th><th>Email</th><th>Puntaje</th><th>Fecha</th></tr></thead>
+      <tbody>${rows}</tbody>
+    </table>
+  `;
+}
+
+function showDetail(i){
+  const r = results[i];
+  const bars = Object.keys(SKILL_LABELS).map(k => {
+    const pct = Math.min(100, Math.round(((r.scores[k]||0)/SKILL_MAX[k])*100));
+    return `<div class="bar-row"><div class="bar-label"><span>${SKILL_LABELS[k]}</span><span>${pct}%</span></div>
+      <div class="bar-track"><div class="bar-fill" style="width:${pct}%"></div></div></div>`;
+  }).join("");
+  const choicesText = (r.choices||[]).map((c,idx) => `${idx+1}. ${c.scene}\n   → ${c.choice}\n`).join("\n");
+  const box = document.getElementById("detailBox");
+  box.innerHTML = `
+    <h3 style="margin-top:0;">${r.candidate_name} — ${r.total_score}%</h3>
+    ${bars}
+    <div class="choices">${choicesText}</div>
+  `;
+  box.classList.add("show");
+  box.scrollIntoView({ behavior:"smooth", block:"start" });
+}
+</script>
+</body>
+</html>

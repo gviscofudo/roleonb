@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>El Salón — Simulador de Onboarding</title>
+<style>
+  :root{
+    --fudo-orange: #FF5A1F;
+    --fudo-orange-dark: #E1490F;
+    --fudo-orange-light: #FFE4D6;
+    --bg-dark: #15171C;
+    --bg-floor: #F3F4F6;
+    --grid-dot: #DCDFE4;
+    --card-white: #FFFFFF;
+    --ink: #191B1F;
+    --ink-soft: #6B7280;
+    --line: #E5E7EB;
+    --green: #16A34A;
+    --green-light: #DCFCE7;
+  }
+  *{ box-sizing:border-box; -webkit-tap-highlight-color: transparent; }
+  html,body{ margin:0; padding:0; background: var(--bg-dark);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    color: var(--ink); min-height:100vh; }
+  .app{ max-width: 720px; margin:0 auto; min-height:100vh; display:flex; flex-direction:column; padding: 18px 14px 40px; }
+  .hud{ display:flex; justify-content:space-between; align-items:center; padding: 12px 18px;
+    background: var(--bg-dark); border: 1px solid #2a2d34; border-radius: 12px; margin-bottom: 14px; font-size: 13px; }
+  .hud-left{ font-weight:800; color: #fff; display:flex; align-items:center; gap:8px; }
+  .hud-left .dot{ width:9px; height:9px; border-radius:50%; background: var(--fudo-orange); box-shadow: 0 0 8px var(--fudo-orange); }
+  .hud-right{ color: #9CA3AF; font-size:12.5px; font-weight:600; }
+
+  .floor-wrap{ position:relative; width:100%; aspect-ratio: 4 / 4.4;
+    background: radial-gradient(circle, var(--grid-dot) 1.4px, transparent 1.4px) 0 0/26px 26px, var(--bg-floor);
+    border-radius: 16px; border: 1px solid var(--line); box-shadow: 0 20px 50px -24px rgba(0,0,0,0.5); overflow:hidden; }
+
+  .barra{ position:absolute; left: 50%; top: 90%; transform: translate(-50%,-50%); width: 36%; height: 9%;
+    background: var(--bg-dark); border-radius: 10px; display:flex; align-items:center; justify-content:center;
+    font-size: 11.5px; font-weight:700; color: var(--fudo-orange); z-index:2; }
+
+  .table{ position:absolute; width: 15%; aspect-ratio: 1/1; transform: translate(-50%,-50%); z-index:3; cursor: default;
+    transition: opacity 0.3s ease, transform 0.2s ease; }
+  .table .top{ width:100%; height:100%; border-radius: 20%; background: var(--card-white); border: 2.5px solid var(--line);
+    display:flex; align-items:center; justify-content:center; flex-direction: column; font-weight:800; color: var(--ink);
+    font-size: 15px; box-shadow: 0 8px 18px -10px rgba(0,0,0,0.25); position:relative; transition: all 0.2s ease; }
+  .table .top .icon{ font-size: 15px; line-height:1; margin-bottom:2px; opacity:0.55; }
+  .table .chair{ position:absolute; width:16%; height:16%; background: #C7CBD1; border-radius: 4px; }
+  .table .chair.c1{ top:-11%; left:42%; } .table .chair.c2{ bottom:-11%; left:42%; }
+  .table .chair.c3{ left:-11%; top:42%; } .table .chair.c4{ right:-11%; top:42%; }
+  .table.idle .top{ opacity:0.55; }
+  .table.active .top{ border-color: var(--fudo-orange); background: var(--fudo-orange-light); animation: glow 1.3s ease-in-out infinite; }
+  .table.active .top .icon{ opacity:1; }
+  .table.done .top{ border-color: var(--green); background: var(--green-light); opacity: 0.85; }
+  .table.clickable{ cursor:pointer; }
+  .table.clickable:hover .top{ transform: scale(1.08); }
+  @keyframes glow{ 0%,100%{ box-shadow: 0 8px 18px -10px rgba(0,0,0,0.25), 0 0 0px rgba(255,90,31,0.0); }
+    50%{ box-shadow: 0 8px 18px -10px rgba(0,0,0,0.25), 0 0 0 6px rgba(255,90,31,0.18); } }
+
+  .call-badge{ position:absolute; top:-24%; left:50%; transform: translateX(-50%); background: var(--fudo-orange); color: #fff;
+    font-size: 9.5px; font-weight:700; padding: 3px 8px; border-radius: 20px; white-space: nowrap; display:none; }
+  .table.active .call-badge{ display:block; }
+  .done-check{ position:absolute; top:-10%; right:-8%; background: var(--green); color:#fff; width:22px; height:22px;
+    border-radius:50%; display:none; align-items:center; justify-content:center; font-size:12px; font-weight:900;
+    border:2.5px solid var(--bg-floor); }
+  .table.done .done-check{ display:flex; }
+
+  .waiter{ position:absolute; width: 13%; aspect-ratio:1/1; transform: translate(-50%,-50%); z-index: 5;
+    transition: left 0.7s ease-in-out, top 0.7s ease-in-out; display:flex; align-items:center; justify-content:center;
+    border-radius:50%; background: var(--fudo-orange); box-shadow: 0 10px 20px -8px rgba(255,90,31,0.6), 0 0 0 4px #fff; font-size: 20px; }
+  .waiter.walking{ animation: bob 0.32s ease-in-out infinite; }
+  @keyframes bob{ 0%,100%{ transform: translate(-50%,-50%) translateY(0); } 50%{ transform: translate(-50%,-50%) translateY(-8%); } }
+
+  .overlay{ position:fixed; inset:0; background: rgba(15,17,20,0.65); display:flex; align-items:center; justify-content:center;
+    padding: 20px; z-index: 20; }
+  .overlay.hidden{ display:none; }
+  .card{ background: var(--card-white); color: var(--ink); width: 100%; max-width: 480px; max-height: 86vh; overflow-y:auto;
+    border-radius: 18px; padding: 28px 26px 26px; box-shadow: 0 30px 70px -20px rgba(0,0,0,0.5); animation: cardIn 0.35s ease; }
+  @keyframes cardIn{ from{ opacity:0; transform: translateY(16px) scale(0.98); } to{ opacity:1; transform: translateY(0) scale(1); } }
+  .card .eyebrow{ font-size: 11px; letter-spacing: 1.5px; text-transform:uppercase; color: var(--fudo-orange); font-weight:800; margin-bottom: 6px; }
+  .card h2{ font-size: 19px; margin: 0 0 14px; font-weight:800; }
+  .card p.body{ font-size: 14.5px; line-height:1.6; margin-bottom: 20px; white-space: pre-wrap; }
+  .opt{ display:block; width:100%; text-align:left; background: #fff; border: 1.5px solid var(--line); color: var(--ink);
+    padding: 13px 15px; margin-bottom:9px; font-family: inherit; font-size: 13.5px; line-height:1.5; cursor:pointer;
+    border-radius:10px; transition: all 0.15s ease; }
+  .opt:hover{ background: var(--fudo-orange-light); border-color: var(--fudo-orange); }
+  .opt .k{ font-weight:800; color: var(--fudo-orange); margin-right:6px; }
+  .opt:disabled{ opacity:0.4; cursor:default; }
+  .opt.chosen{ border-color: var(--green); background: var(--green-light); }
+  .feedback{ font-size:13px; background: #F3F4F6; border-left:3px solid var(--fudo-orange); padding:12px 14px; margin: 4px 0 18px;
+    border-radius: 0 8px 8px 0; display:none; }
+  .feedback.show{ display:block; }
+  .btn{ background: var(--ink); color: #fff; border:none; padding:12px 22px; font-family:inherit; font-size:12.5px;
+    font-weight:700; cursor:pointer; border-radius:10px; }
+  .btn:hover{ background:#000; }
+  .btn.primary{ background: var(--fudo-orange); }
+  .btn.primary:hover{ background: var(--fudo-orange-dark); }
+  .btn.hidden{ display:none; }
+  .btn:disabled{ opacity:0.5; cursor:not-allowed; }
+  .field{ margin-bottom: 14px; }
+  .field label{ display:block; font-size:12px; font-weight:700; margin-bottom:5px; color: var(--ink-soft); }
+  .field input{ width:100%; padding: 11px 13px; border:1.5px solid var(--line); border-radius:10px; font-size:14px; font-family:inherit; }
+  .field input:focus{ outline:none; border-color: var(--fudo-orange); }
+  .rush-list{ margin: 6px 0 18px; padding:0; list-style:none; }
+  .rush-list li{ font-size: 12.5px; padding: 10px 12px; border: 1.5px solid var(--line); border-radius: 10px; margin-bottom: 8px;
+    display:flex; justify-content:space-between; align-items:center; cursor:pointer; }
+  .rush-list li:hover{ border-color: var(--fudo-orange); background: var(--fudo-orange-light); }
+  .rush-list li.picked{ opacity:0.5; cursor:default; background:#F3F4F6; }
+  .rush-list li .order-num{ background: var(--fudo-orange); color:#fff; width:20px; height:20px; border-radius:50%;
+    display:none; align-items:center; justify-content:center; font-size:11px; margin-right:8px; flex-shrink:0; }
+  .rush-list li.picked .order-num{ display:inline-flex; }
+  .footer-note{ color:#6B7280; font-size:11px; text-align:center; margin-top:14px; }
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="hud">
+    <div class="hud-left"><span class="dot"></span>FUDO · EL SALÓN</div>
+    <div class="hud-right" id="hudStatus">Mesas atendidas: 0/10</div>
+  </div>
+  <div class="floor-wrap" id="floor">
+    <div class="barra" id="barra">🧾 BARRA</div>
+    <div class="waiter" id="waiter">🧑‍🍳</div>
+  </div>
+  <div class="footer-note">Hacé clic en la mesa que se ilumina · sin cronómetro, tomate el tiempo que necesites</div>
+</div>
+<div class="overlay" id="overlay"></div>
+
+<script>
+// ---- Config Supabase ----
+const SUPABASE_URL = "https://xkqopmcfwxpajbvjgclg.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhrcW9wbWNmd3hwYWpidmpnY2xnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk4MTYyMjAsImV4cCI6MjA5NTM5MjIyMH0._NB6PcBADxxkkogWHPCgzQovH9rreI2QoaKqiWgnFrs";
+
+const TABLE_POS = {
+  1:{x:18,y:10}, 2:{x:50,y:10}, 3:{x:82,y:10},
+  4:{x:18,y:27}, 5:{x:50,y:27}, 6:{x:82,y:27},
+  7:{x:18,y:44}, 8:{x:50,y:44}, 9:{x:82,y:44},
+  10:{x:50,y:61}
+};
+const BARRA_POS = { x: 50, y: 90 };
+const TOTAL_TABLES = Object.keys(TABLE_POS).length;
+
+const singleScenes = {
+  1: { skill:"comunicacion", skillLabel:"Comunicación",
+    scene:"Mesa 1 — Explicar algo técnico por escrito",
+    body:"Tenés que explicarle por WhatsApp a un cliente sin conocimientos técnicos cómo configurar las impresoras de cocina, un proceso con varios pasos.",
+    options:[
+      {text:"Le copiás el artículo técnico de soporte tal cual está escrito.", tags:{comunicacion:0}},
+      {text:"Le resumís los pasos en lenguaje simple y numerado, y le ofrecés mandarle una captura si algo no queda claro.", tags:{comunicacion:2}},
+      {text:"Le mandás un audio largo explicando todo de corrido, sin pasos separados.", tags:{comunicacion:1}},
+    ]},
+  2: { skill:"empatia", skillLabel:"Empatía / escucha activa",
+    scene:"Mesa 2 — Seguimiento proactivo",
+    body:"Le escribís a un cliente para preguntarle cómo le fue con la Terminal de cobros que recibió hace unos días y todavía no usó. Te responde cortante:\n\n\"No me interesa.\"\n\nLe repreguntás, y aclara: \"No, no consulté eso. Quería saber cómo se hace el cierre de caja diario. ¿Tenés algún tutorial?\"",
+    options:[
+      {text:"Le repetís la información sobre la Terminal, ya que fue el motivo original de tu mensaje.", tags:{empatia:0}},
+      {text:"Te disculpás por el malentendido y respondés directamente sobre el cierre de caja.", tags:{empatia:2}},
+      {text:"Le decís que ese tema no te corresponde a vos y lo derivás sin más contexto.", tags:{empatia:0}},
+    ]},
+  3: { skill:"escucha", skillLabel:"Escucha activa",
+    scene:"Mesa 3 — Un mensaje, tres temas",
+    body:"Un cliente escribe un mensaje largo mezclando tres cosas: una queja porque tardaron en responderle, una pregunta técnica, y un comentario sobre que le parece caro el plan.",
+    options:[
+      {text:"Respondés solo la pregunta técnica, porque es la más fácil.", tags:{escucha:0}},
+      {text:"Reconocés los tres puntos por separado y le contás cómo vas a abordar cada uno.", tags:{escucha:2}},
+      {text:"Le pedís que te escriba los temas por separado la próxima vez.", tags:{escucha:0}},
+    ]},
+  4: { skill:"resolucion", skillLabel:"Resolución de problemas",
+    scene:"Mesa 4 — Copiar el menú entre sucursales",
+    body:"Un cliente con dos sucursales pide copiar la carta de una sucursal a otra. Le explicás el proceso técnico paso a paso, pero responde \"no\" cuando le preguntás si eso resolvió su duda, y después escribe: \"asistencia necesito.\"",
+    options:[
+      {text:"Le repetís exactamente la misma explicación técnica, con las mismas palabras.", tags:{resolucion:0}},
+      {text:"Le preguntás primero qué parte no le quedó clara, antes de reexplicar.", tags:{resolucion:2}},
+      {text:"Lo derivás directo a un compañero sin intentar entender qué no entendió.", tags:{resolucion:0}},
+    ]},
+  5: { skill:"negociacion", skillLabel:"Negociación",
+    scene:"Mesa 5 — Pide extender el descuento",
+    body:"Un cliente pide extender el descuento promocional de activación porque se retrasó en activar la cuenta por un problema técnico ajeno a él.",
+    options:[
+      {text:"Le decís que no se puede, que la promo ya venció, sin más explicación.", tags:{negociacion:0}},
+      {text:"Le proponés una alternativa concreta dentro de lo posible, ligada a la causa del retraso.", tags:{negociacion:2}},
+      {text:"Le das la extensión completa que pide, sin consultarlo con nadie.", tags:{negociacion:0}},
+    ]},
+  6: { skill:"objeciones", skillLabel:"Manejo de objeciones",
+    scene:"Mesa 6 — \"Esto es más complicado que lo que usaba antes\"",
+    body:"Un cliente en onboarding dice: \"Esto es mucho más complicado que el sistema que usaba antes, no sé si me sirve.\"",
+    options:[
+      {text:"Le decís que se va a acostumbrar, que es cuestión de tiempo.", tags:{objeciones:0}},
+      {text:"Le preguntás específicamente qué parte le resulta más complicada, para mostrarle cómo resolverla.", tags:{objeciones:2}},
+      {text:"Evitás el tema y cambiás de conversación.", tags:{objeciones:0}},
+    ]},
+  7: { skill:"orientacion", skillLabel:"Orientación al cliente",
+    scene:"Mesa 7 — Un problema que todavía no preguntó",
+    body:"Notás que un cliente está cargando mal el stock, de una forma que le va a arruinar sus reportes a fin de mes. No te preguntó nada al respecto.",
+    options:[
+      {text:"No decís nada porque no te lo preguntó.", tags:{orientacion:0}},
+      {text:"Le avisás proactivamente lo que notaste y le explicás cómo evitarlo.", tags:{orientacion:2}},
+      {text:"Se lo mencionás de forma muy técnica, sin explicar por qué le conviene.", tags:{orientacion:1}},
+    ]},
+  8: { skill:"adaptabilidad", skillLabel:"Adaptabilidad",
+    scene:"Mesa 8 — Cambio de planes de último momento",
+    body:"Tenías planeada una capacitación por videollamada, pero el cliente avisa de último momento que no tiene señal y prefiere que se la expliques por texto.",
+    options:[
+      {text:"Insistís en hacerla por videollamada, porque es como mejor te sale explicar.", tags:{adaptabilidad:0}},
+      {text:"Adaptás la capacitación al formato texto, dividiéndola en mensajes cortos con capturas.", tags:{adaptabilidad:2}},
+      {text:"Pospones la capacitación para otro día, sin ofrecer ninguna alternativa para hoy.", tags:{adaptabilidad:1}},
+    ]},
+  9: { skill:"presion", skillLabel:"Trabajo bajo presión",
+    scene:"Mesa 9 — Integración de delivery, cliente confundido",
+    body:"Estás ayudando a integrar una tienda de delivery. El cliente escribe varias veces seguidas, confundido, sobre dónde tiene que responder. Mientras tanto tenés otras conversaciones esperando.",
+    options:[
+      {text:"Le repetís la instrucción técnica tal cual, sin acompañarla de una imagen.", tags:{presion:1}},
+      {text:"Te tomás el minuto extra para mandarle una captura señalando exactamente dónde cargar el dato.", tags:{presion:2}},
+      {text:"Le decís que espere, que en algún momento el sistema se lo va a mostrar solo.", tags:{presion:1}},
+    ]},
+};
+
+const rushOptions = [
+  { id:"urgente", label:"Reclamo por cobro", detail:"Un cliente dice que el sistema le cobró mal a un comensal, ahora mismo, y tiene gente esperando para pagar.", pts:{priorizacion:2} },
+  { id:"nuevo", label:"Cliente nuevo esperando", detail:"Un cliente que se dio de alta hoy preguntó hace 10 minutos cómo cargar el menú y todavía no le respondiste.", pts:{priorizacion:1.5} },
+  { id:"tranquilo", label:"Cliente agradecido", detail:"Un cliente tranquilo solo quiere agradecerte y contarte que le está yendo bien. No tiene ninguna urgencia.", pts:{priorizacion:0.5} },
+];
+
+const SKILL_LABELS = {
+  comunicacion:"Comunicación", empatia:"Empatía", escucha:"Escucha activa", resolucion:"Resolución de problemas",
+  negociacion:"Negociación", objeciones:"Manejo de objeciones", orientacion:"Orientación al cliente",
+  adaptabilidad:"Adaptabilidad", presion:"Trabajo bajo presión", priorizacion:"Priorización"
+};
+const SKILL_MAX = { comunicacion:2, empatia:2, escucha:2, resolucion:2, negociacion:2, objeciones:2, orientacion:2, adaptabilidad:2, presion:2, priorizacion:2 };
+
+let scores = {}; Object.keys(SKILL_LABELS).forEach(k => scores[k] = 0);
+let choiceLog = [];
+let candidate = { name:"", email:"" };
+let doneCount = 0;
+let rushPicked = [];
+let waiterPos = { ...BARRA_POS };
+
+const floor = document.getElementById("floor");
+const waiterEl = document.getElementById("waiter");
+const overlay = document.getElementById("overlay");
+const hudStatus = document.getElementById("hudStatus");
+
+function buildTables(){
+  Object.keys(TABLE_POS).forEach(id => {
+    const pos = TABLE_POS[id];
+    const div = document.createElement("div");
+    div.className = "table idle";
+    div.id = "table-" + id;
+    div.style.left = pos.x + "%";
+    div.style.top = pos.y + "%";
+    div.innerHTML = `<div class="top"><span class="icon">🍽️</span><span>M${id}</span>
+      <div class="call-badge">¡TE LLAMA!</div><div class="done-check">✓</div></div>
+      <div class="chair c1"></div><div class="chair c2"></div><div class="chair c3"></div><div class="chair c4"></div>`;
+    div.addEventListener("click", () => onTableClick(parseInt(id)));
+    floor.appendChild(div);
+  });
+}
+buildTables();
+
+function setActive(ids){
+  Object.keys(TABLE_POS).forEach(id => document.getElementById("table-"+id).classList.remove("active","clickable"));
+  ids.forEach(id => { const el=document.getElementById("table-"+id); el.classList.remove("idle"); el.classList.add("active","clickable"); });
+}
+function setDone(id){
+  const el = document.getElementById("table-"+id);
+  el.classList.remove("active","clickable","idle"); el.classList.add("done");
+  doneCount++; hudStatus.textContent = `Mesas atendidas: ${doneCount}/${TOTAL_TABLES}`;
+}
+function moveWaiterTo(x,y,cb){
+  waiterEl.classList.add("walking"); waiterEl.style.left=x+"%"; waiterEl.style.top=y+"%"; waiterPos={x,y};
+  setTimeout(() => { waiterEl.classList.remove("walking"); if(cb) cb(); }, 750);
+}
+function showOverlay(html){ overlay.innerHTML = html; overlay.classList.remove("hidden"); }
+function hideOverlay(){ overlay.classList.add("hidden"); overlay.innerHTML = ""; }
+
+// ---- LOGIN ----
+function showLogin(){
+  showOverlay(`
+    <div class="card">
+      <div class="eyebrow">Antes de empezar</div>
+      <h2>¿Quién juega este turno?</h2>
+      <p class="body">Completá tus datos para arrancar la simulación.</p>
+      <div class="field"><label>Nombre y apellido</label><input id="loginName" type="text" placeholder="Ej: Ana Pérez"></div>
+      <div class="field"><label>Email</label><input id="loginEmail" type="email" placeholder="ana@mail.com"></div>
+      <button class="btn primary" onclick="submitLogin()">Continuar →</button>
+    </div>
+  `);
+}
+function submitLogin(){
+  const name = document.getElementById("loginName").value.trim();
+  const email = document.getElementById("loginEmail").value.trim();
+  if(!name || !email || !email.includes("@")){
+    alert("Completá tu nombre y un email válido para continuar.");
+    return;
+  }
+  candidate = { name, email };
+  showIntro();
+}
+showLogin();
+
+// ---- INTRO ----
+function showIntro(){
+  showOverlay(`
+    <div class="card">
+      <div class="eyebrow">Simulador de turno</div>
+      <h2>Bienvenido, ${candidate.name.split(" ")[0]}</h2>
+      <p class="body">Hoy cubrís un turno como Ejecutivo de Onboarding. A medida que las mesas se iluminan, te están llamando clientes de tu día a día.
+
+No hay una respuesta "correcta" en cada mesa — elegí lo que harías vos.</p>
+      <button class="btn primary" onclick="startGame()">Empezar turno →</button>
+    </div>
+  `);
+}
+function startGame(){ hideOverlay(); activateTable(1); }
+function activateTable(id){ setActive([id]); }
+
+function onTableClick(id){
+  const el = document.getElementById("table-"+id);
+  if(!el.classList.contains("clickable")) return;
+  el.classList.remove("clickable","active");
+  const pos = TABLE_POS[id];
+  moveWaiterTo(pos.x, pos.y-7, () => { id === 10 ? openRush() : openScenario(id); });
+}
+
+function openScenario(id){
+  const s = singleScenes[id];
+  let optsHtml = s.options.map((opt,idx) => {
+    const letter = String.fromCharCode(65+idx);
+    return `<button class="opt" onclick="answerScenario(${id},${idx})"><span class="k">${letter}.</span>${opt.text}</button>`;
+  }).join("");
+  showOverlay(`
+    <div class="card">
+      <div class="eyebrow">${s.skillLabel}</div>
+      <h2>${s.scene}</h2>
+      <p class="body">${s.body}</p>
+      <div id="scenarioOpts">${optsHtml}</div>
+      <div class="feedback" id="scenarioFeedback">Elección registrada.</div>
+      <button class="btn hidden" id="scenarioNext" onclick="closeScenario(${id})">Volver al salón →</button>
+    </div>
+  `);
+}
+function answerScenario(id, idx){
+  const s = singleScenes[id];
+  const chosen = s.options[idx];
+  Object.keys(chosen.tags).forEach(k => scores[k] += chosen.tags[k]);
+  choiceLog.push({ scene:s.scene, choice:chosen.text });
+  document.querySelectorAll("#scenarioOpts .opt").forEach((btn,i) => { btn.disabled=true; if(i===idx) btn.classList.add("chosen"); });
+  document.getElementById("scenarioFeedback").classList.add("show");
+  document.getElementById("scenarioNext").classList.remove("hidden");
+}
+function closeScenario(id){
+  hideOverlay(); setDone(id);
+  if(id === 9){ setTimeout(() => activateTable(10), 300); }
+  else { setTimeout(() => activateTable(id+1), 300); }
+}
+
+// ---- Hora pico (mesa 10, priorización) ----
+function openRush(){
+  rushPicked = [];
+  renderRush();
+}
+function renderRush(){
+  const items = rushOptions.map(o => {
+    const picked = rushPicked.includes(o.id);
+    const num = picked ? rushPicked.indexOf(o.id)+1 : "";
+    return `<li class="${picked?'picked':''}" onclick="${picked?'':`pickRush('${o.id}')`}">
+      <span class="order-num">${num}</span><span>${o.detail}</span></li>`;
+  }).join("");
+  showOverlay(`
+    <div class="card">
+      <div class="eyebrow">Priorización</div>
+      <h2>Mesa 10 — Hora pico</h2>
+      <p class="body">Tres mesas te llaman al mismo tiempo. Hacé clic en el orden en que las atenderías.</p>
+      <ul class="rush-list">${items}</ul>
+      <button class="btn hidden" id="rushNext" onclick="closeRush()">Volver al salón →</button>
+    </div>
+  `);
+  if(rushPicked.length === 3){
+    document.getElementById("rushNext").classList.remove("hidden");
+  }
+}
+function pickRush(id){
+  if(rushPicked.includes(id)) return;
+  rushPicked.push(id);
+  const opt = rushOptions.find(o => o.id === id);
+  if(rushPicked.length === 1){
+    Object.keys(opt.pts).forEach(k => scores[k] += opt.pts[k]);
+  }
+  choiceLog.push({ scene:"Hora pico (priorización)", choice:`Posición ${rushPicked.length}: ${opt.label}` });
+  renderRush();
+}
+function closeRush(){ hideOverlay(); setDone(10); finishGame(); }
+
+// ---- Cierre (scoring oculto, no se muestra al candidato) ----
+function finishGame(){
+  let total = 0;
+  Object.keys(SKILL_MAX).forEach(k => total += Math.min(1, scores[k]/SKILL_MAX[k]));
+  const totalScore = Math.round((total / Object.keys(SKILL_MAX).length) * 100);
+
+  showOverlay(`
+    <div class="card">
+      <div class="eyebrow">Turno finalizado</div>
+      <h2>¡Gracias, ${candidate.name.split(" ")[0]}!</h2>
+      <p class="body">Completaste el turno de prueba. Tu responsable de selección va a revisar los resultados y se va a poner en contacto con vos.</p>
+    </div>
+  `);
+
+  fetch(`${SUPABASE_URL}/rest/v1/roleonb_results`, {
+    method: "POST",
+    headers: {
+      "apikey": SUPABASE_ANON_KEY,
+      "Authorization": `Bearer ${SUPABASE_ANON_KEY}`,
+      "Content-Type": "application/json",
+      "Prefer": "return=minimal"
+    },
+    body: JSON.stringify({
+      candidate_name: candidate.name,
+      candidate_email: candidate.email,
+      total_score: totalScore,
+      scores: scores,
+      choices: choiceLog
+    })
+  }).catch(err => console.error("Error guardando resultado:", err));
+}
+</script>
+</body>
+</html>
