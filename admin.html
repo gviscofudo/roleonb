@@ -70,11 +70,11 @@
 <script>
 const FUNCTION_URL = "https://xkqopmcfwxpajbvjgclg.supabase.co/functions/v1/roleonb-admin";
 const SKILL_LABELS = {
-  comunicacion:"Comunicación", empatia:"Empatía", escucha:"Escucha activa", resolucion:"Resolución de problemas",
-  negociacion:"Negociación", objeciones:"Manejo de objeciones", orientacion:"Orientación al cliente",
+  comunicacion:"Comunicación", empatia:"Empatía / escucha activa", resolucion:"Resolución de problemas",
+  negociacion:"Negociación y objeciones", orientacion:"Orientación al cliente",
   adaptabilidad:"Adaptabilidad", presion:"Trabajo bajo presión", priorizacion:"Priorización"
 };
-const SKILL_MAX = { comunicacion:2, empatia:2, escucha:2, resolucion:2, negociacion:2, objeciones:2, orientacion:2, adaptabilidad:2, presion:2, priorizacion:2 };
+const SKILL_MAX = { comunicacion:2, empatia:2, resolucion:2, negociacion:2, orientacion:2, adaptabilidad:2, presion:2, priorizacion:2 };
 
 let currentPass = "";
 let results = [];
