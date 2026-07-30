@@ -37,6 +37,14 @@
   .bar-track{ background:#EDEEF0; height:9px; border-radius:5px; overflow:hidden; border:1px solid var(--line); }
   .bar-fill{ height:100%; background: var(--fudo-orange); }
   .choices{ margin-top:16px; font-size:12.5px; line-height:1.6; white-space:pre-wrap; background:#FAFAFB; border-radius:10px; padding:14px; max-height:260px; overflow-y:auto; }
+  .summary-block{ background: var(--fudo-orange-light); border-left:3px solid var(--fudo-orange); border-radius:0 10px 10px 0;
+    padding:14px 16px; font-size:13.5px; line-height:1.6; margin: 14px 0 18px; }
+  .profile-list{ display:flex; flex-direction:column; gap:10px; margin-bottom:10px; }
+  .profile-item{ border:1px solid var(--line); border-radius:10px; padding:12px 14px; background:#FAFAFB; }
+  .profile-skill{ font-weight:800; font-size:12.5px; margin-bottom:4px; }
+  .profile-scene{ font-weight:400; color: var(--ink-soft); }
+  .profile-choice{ font-size:12.5px; font-style:italic; color: var(--ink-soft); margin-bottom:6px; }
+  .profile-note{ font-size:12.5px; line-height:1.5; }
   .empty{ text-align:center; padding:40px; color:var(--ink-soft); }
   .refresh{ background:transparent; border:1px solid var(--ink); color:var(--ink); padding:8px 14px; border-radius:8px; cursor:pointer; font-size:12.5px; font-weight:700; }
 </style>
@@ -132,10 +140,21 @@ function showDetail(i){
       <div class="bar-track"><div class="bar-fill" style="width:${pct}%"></div></div></div>`;
   }).join("");
   const choicesText = (r.choices||[]).map((c,idx) => `${idx+1}. ${c.scene}\n   → ${c.choice}\n`).join("\n");
+  const synthesisHtml = (r.synthesis||[]).map(s => `
+    <div class="profile-item">
+      <div class="profile-skill">${s.skill} — <span class="profile-scene">${s.scene}</span></div>
+      <div class="profile-choice">Respondió: "${s.choice}"</div>
+      <div class="profile-note">${s.note}</div>
+    </div>
+  `).join("");
   const box = document.getElementById("detailBox");
   box.innerHTML = `
     <h3 style="margin-top:0;">${r.candidate_name} — ${r.total_score}%</h3>
+    <div class="summary-block">${r.overall_summary || "Sin resumen disponible para este candidato."}</div>
     ${bars}
+    <h4 style="margin: 20px 0 10px;">Perfil de competencias — detalle por mesa</h4>
+    <div class="profile-list">${synthesisHtml || "<p style='color:var(--ink-soft); font-size:13px;'>Sin detalle disponible.</p>"}</div>
+    <h4 style="margin: 20px 0 10px;">Registro completo de elecciones</h4>
     <div class="choices">${choicesText}</div>
   `;
   box.classList.add("show");

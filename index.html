@@ -144,74 +144,107 @@ const singleScenes = {
     scene:"Mesa 1 — Explicar algo técnico por escrito",
     body:"Tenés que explicarle por WhatsApp a un cliente sin conocimientos técnicos cómo configurar las impresoras de cocina, un proceso con varios pasos.",
     options:[
-      {text:"Le copiás el artículo técnico de soporte tal cual está escrito.", tags:{comunicacion:0}},
-      {text:"Le resumís los pasos en lenguaje simple y numerado, y le ofrecés mandarle una captura si algo no queda claro.", tags:{comunicacion:2}},
-      {text:"Le mandás un audio largo explicando todo de corrido, sin pasos separados.", tags:{comunicacion:1}},
+      {text:"Le copiás el artículo técnico de soporte tal cual está escrito.", tags:{comunicacion:0},
+        note:"Copiar el artículo técnico tal cual traslada al cliente la carga de traducirlo por su cuenta."},
+      {text:"Le resumís los pasos en lenguaje simple y numerado, y le ofrecés mandarle una captura si algo no queda claro.", tags:{comunicacion:2},
+        note:"Simplificó el contenido técnico y ofreció apoyo visual — la forma más efectiva de comunicar algo complejo a alguien sin ese conocimiento."},
+      {text:"Le mandás un audio largo explicando todo de corrido, sin pasos separados.", tags:{comunicacion:1},
+        note:"Un audio largo sin estructura es difícil de seguir y de retomar si el cliente necesita releer un paso puntual."},
     ]},
   2: { skill:"empatia", skillLabel:"Empatía / escucha activa",
     scene:"Mesa 2 — Seguimiento proactivo",
     body:"Le escribís a un cliente para preguntarle cómo le fue con la Terminal de cobros que recibió hace unos días y todavía no usó. Te responde cortante:\n\n\"No me interesa.\"\n\nLe repreguntás, y aclara: \"No, no consulté eso. Quería saber cómo se hace el cierre de caja diario. ¿Tenés algún tutorial?\"",
     options:[
-      {text:"Le repetís la información sobre la Terminal, ya que fue el motivo original de tu mensaje.", tags:{empatia:0}},
-      {text:"Te disculpás por el malentendido y respondés directamente sobre el cierre de caja.", tags:{empatia:2}},
-      {text:"Le decís que ese tema no te corresponde a vos y lo derivás sin más contexto.", tags:{empatia:0}},
+      {text:"Le repetís la información sobre la Terminal, ya que fue el motivo original de tu mensaje.", tags:{empatia:0},
+        note:"Insistir con el guion original ignora lo que el cliente acaba de aclarar."},
+      {text:"Te disculpás por el malentendido y respondés directamente sobre el cierre de caja.", tags:{empatia:2},
+        note:"Escuchó lo que realmente necesitaba en lugar de aferrarse al motivo original del mensaje."},
+      {text:"Le decís que ese tema no te corresponde a vos y lo derivás sin más contexto.", tags:{empatia:0},
+        note:"Derivar sin dar contexto deja al cliente esperando otra vez desde cero."},
     ]},
   3: { skill:"escucha", skillLabel:"Escucha activa",
     scene:"Mesa 3 — Un mensaje, tres temas",
     body:"Un cliente escribe un mensaje largo mezclando tres cosas: una queja porque tardaron en responderle, una pregunta técnica, y un comentario sobre que le parece caro el plan.",
     options:[
-      {text:"Respondés solo la pregunta técnica, porque es la más fácil.", tags:{escucha:0}},
-      {text:"Reconocés los tres puntos por separado y le contás cómo vas a abordar cada uno.", tags:{escucha:2}},
-      {text:"Le pedís que te escriba los temas por separado la próxima vez.", tags:{escucha:0}},
+      {text:"Respondés solo la pregunta técnica, porque es la más fácil.", tags:{escucha:0},
+        note:"Responder solo una parte deja sin atender la queja y el comentario sobre el precio."},
+      {text:"Reconocés los tres puntos por separado y le contás cómo vas a abordar cada uno.", tags:{escucha:2},
+        note:"Nombrar los tres puntos por separado muestra que se leyó todo el mensaje, sin que el cliente tenga que repetirse."},
+      {text:"Le pedís que te escriba los temas por separado la próxima vez.", tags:{escucha:0},
+        note:"Pedirle que reescriba el mensaje pone la carga en el cliente en vez de ordenar la respuesta del lado del equipo."},
     ]},
   4: { skill:"resolucion", skillLabel:"Resolución de problemas",
     scene:"Mesa 4 — Copiar el menú entre sucursales",
     body:"Un cliente con dos sucursales pide copiar la carta de una sucursal a otra. Le explicás el proceso técnico paso a paso, pero responde \"no\" cuando le preguntás si eso resolvió su duda, y después escribe: \"asistencia necesito.\"",
     options:[
-      {text:"Le repetís exactamente la misma explicación técnica, con las mismas palabras.", tags:{resolucion:0}},
-      {text:"Le preguntás primero qué parte no le quedó clara, antes de reexplicar.", tags:{resolucion:2}},
-      {text:"Lo derivás directo a un compañero sin intentar entender qué no entendió.", tags:{resolucion:0}},
+      {text:"Le repetís exactamente la misma explicación técnica, con las mismas palabras.", tags:{resolucion:0},
+        note:"Repetir la misma explicación cuando ya no funcionó la primera vez suele sumar frustración, no resolverla."},
+      {text:"Le preguntás primero qué parte no le quedó clara, antes de reexplicar.", tags:{resolucion:2},
+        note:"Entender específicamente qué no quedó claro evita repetir información que ya no le sirvió."},
+      {text:"Lo derivás directo a un compañero sin intentar entender qué no entendió.", tags:{resolucion:0},
+        note:"Derivar sin indagar deja la sensación de que nadie escuchó realmente cuál era el problema."},
     ]},
   5: { skill:"negociacion", skillLabel:"Negociación",
     scene:"Mesa 5 — Pide extender el descuento",
     body:"Un cliente pide extender el descuento promocional de activación porque se retrasó en activar la cuenta por un problema técnico ajeno a él.",
     options:[
-      {text:"Le decís que no se puede, que la promo ya venció, sin más explicación.", tags:{negociacion:0}},
-      {text:"Le proponés una alternativa concreta dentro de lo posible, ligada a la causa del retraso.", tags:{negociacion:2}},
-      {text:"Le das la extensión completa que pide, sin consultarlo con nadie.", tags:{negociacion:0}},
+      {text:"Le decís que no se puede, que la promo ya venció, sin más explicación.", tags:{negociacion:0},
+        note:"Un no seco sin alternativa cierra la conversación pero no deja al cliente ninguna salida, aun con un reclamo fundado."},
+      {text:"Le proponés una alternativa concreta dentro de lo posible, ligada a la causa del retraso.", tags:{negociacion:2},
+        note:"Ofrecer algo concreto ligado a una causa verificable sostiene una negociación sana, sin regalar todo ni cerrar la puerta."},
+      {text:"Le das la extensión completa que pide, sin consultarlo con nadie.", tags:{negociacion:0},
+        note:"Ceder todo de entrada evita el conflicto en el momento, pero no explora alternativas ni deja precedente sano."},
     ]},
   6: { skill:"objeciones", skillLabel:"Manejo de objeciones",
     scene:"Mesa 6 — \"Esto es más complicado que lo que usaba antes\"",
     body:"Un cliente en onboarding dice: \"Esto es mucho más complicado que el sistema que usaba antes, no sé si me sirve.\"",
     options:[
-      {text:"Le decís que se va a acostumbrar, que es cuestión de tiempo.", tags:{objeciones:0}},
-      {text:"Le preguntás específicamente qué parte le resulta más complicada, para mostrarle cómo resolverla.", tags:{objeciones:2}},
-      {text:"Evitás el tema y cambiás de conversación.", tags:{objeciones:0}},
+      {text:"Le decís que se va a acostumbrar, que es cuestión de tiempo.", tags:{objeciones:0},
+        note:"\"Ya te vas a acostumbrar\" no responde la objeción real y puede sonar a que su preocupación no importa."},
+      {text:"Le preguntás específicamente qué parte le resulta más complicada, para mostrarle cómo resolverla.", tags:{objeciones:2},
+        note:"Ir al punto específico de la comparación permite mostrar una solución concreta en vez de pedir un acto de fe."},
+      {text:"Evitás el tema y cambiás de conversación.", tags:{objeciones:0},
+        note:"Evitar la objeción no la resuelve — el cliente se queda con la misma duda y menos ganas de seguir preguntando."},
     ]},
   7: { skill:"orientacion", skillLabel:"Orientación al cliente",
     scene:"Mesa 7 — Un problema que todavía no preguntó",
     body:"Notás que un cliente está cargando mal el stock, de una forma que le va a arruinar sus reportes a fin de mes. No te preguntó nada al respecto.",
     options:[
-      {text:"No decís nada porque no te lo preguntó.", tags:{orientacion:0}},
-      {text:"Le avisás proactivamente lo que notaste y le explicás cómo evitarlo.", tags:{orientacion:2}},
-      {text:"Se lo mencionás de forma muy técnica, sin explicar por qué le conviene.", tags:{orientacion:1}},
+      {text:"No decís nada porque no te lo preguntó.", tags:{orientacion:0},
+        note:"Esperar a que el cliente descubra el problema solo, cuando ya lo viste venir, deja pasar una oportunidad de cuidarlo."},
+      {text:"Le avisás proactivamente lo que notaste y le explicás cómo evitarlo.", tags:{orientacion:2},
+        note:"Avisar proactivamente y explicar el porqué es la esencia de la orientación al cliente."},
+      {text:"Se lo mencionás de forma muy técnica, sin explicar por qué le conviene.", tags:{orientacion:1},
+        note:"Avisar en términos muy técnicos cumple el trámite, pero si no entiende por qué le conviene, puede no actuar a tiempo."},
     ]},
   8: { skill:"adaptabilidad", skillLabel:"Adaptabilidad",
     scene:"Mesa 8 — Cambio de planes de último momento",
     body:"Tenías planeada una capacitación por videollamada, pero el cliente avisa de último momento que no tiene señal y prefiere que se la expliques por texto.",
     options:[
-      {text:"Insistís en hacerla por videollamada, porque es como mejor te sale explicar.", tags:{adaptabilidad:0}},
-      {text:"Adaptás la capacitación al formato texto, dividiéndola en mensajes cortos con capturas.", tags:{adaptabilidad:2}},
-      {text:"Pospones la capacitación para otro día, sin ofrecer ninguna alternativa para hoy.", tags:{adaptabilidad:1}},
+      {text:"Insistís en hacerla por videollamada, porque es como mejor te sale explicar.", tags:{adaptabilidad:0},
+        note:"Insistir en el formato que a vos te resulta más cómodo prioriza tu comodidad por sobre la del cliente."},
+      {text:"Adaptás la capacitación al formato texto, dividiéndola en mensajes cortos con capturas.", tags:{adaptabilidad:2},
+        note:"Adaptar el contenido al formato disponible, sin perder calidad, es la esencia de la adaptabilidad."},
+      {text:"Pospones la capacitación para otro día, sin ofrecer ninguna alternativa para hoy.", tags:{adaptabilidad:1},
+        note:"Posponer sin ofrecer nada para hoy es válido en algunos casos, pero primero vale la pena intentar resolverlo en el momento."},
     ]},
   9: { skill:"presion", skillLabel:"Trabajo bajo presión",
     scene:"Mesa 9 — Integración de delivery, cliente confundido",
     body:"Estás ayudando a integrar una tienda de delivery. El cliente escribe varias veces seguidas, confundido, sobre dónde tiene que responder. Mientras tanto tenés otras conversaciones esperando.",
     options:[
-      {text:"Le repetís la instrucción técnica tal cual, sin acompañarla de una imagen.", tags:{presion:1}},
-      {text:"Te tomás el minuto extra para mandarle una captura señalando exactamente dónde cargar el dato.", tags:{presion:2}},
-      {text:"Le decís que espere, que en algún momento el sistema se lo va a mostrar solo.", tags:{presion:1}},
+      {text:"Le repetís la instrucción técnica tal cual, sin acompañarla de una imagen.", tags:{presion:1},
+        note:"Repetir la instrucción de la misma forma cuando ya mostró que no la entendió suele generar más idas y vueltas."},
+      {text:"Te tomás el minuto extra para mandarle una captura señalando exactamente dónde cargar el dato.", tags:{presion:2},
+        note:"Tomarse el minuto extra para mostrar exactamente dónde hacer clic ahorra varias vueltas de mensajes confusos."},
+      {text:"Le decís que espere, que en algún momento el sistema se lo va a mostrar solo.", tags:{presion:1},
+        note:"Dejar que el cliente resuelva solo un paso que ya mostró no entender aumenta el riesgo de que abandone el proceso."},
     ]},
+};
+
+const rushNotes = {
+  urgente: "Fue primero al reclamo con impacto inmediato en la operación del local — prioriza la urgencia con mayor efecto en el negocio del cliente en tiempo real.",
+  nuevo: "Fue primero al cliente nuevo que esperaba respuesta — cuida la activación temprana, aunque el reclamo de cobro tenía un impacto operativo más inmediato.",
+  tranquilo: "Fue primero a la mesa sin urgencia real — cuida el vínculo, pero en un pico suele convenir resolver antes lo que más impacta la operación."
 };
 
 const rushOptions = [
@@ -229,6 +262,7 @@ const SKILL_MAX = { comunicacion:2, empatia:2, escucha:2, resolucion:2, negociac
 
 let scores = {}; Object.keys(SKILL_LABELS).forEach(k => scores[k] = 0);
 let choiceLog = [];
+let synthesisLog = [];
 let candidate = { name:"", email:"" };
 let doneCount = 0;
 let rushPicked = [];
@@ -343,6 +377,7 @@ function answerScenario(id, idx){
   const chosen = s.options[idx];
   Object.keys(chosen.tags).forEach(k => scores[k] += chosen.tags[k]);
   choiceLog.push({ scene:s.scene, choice:chosen.text });
+  synthesisLog.push({ skill:s.skillLabel, scene:s.scene, choice:chosen.text, note:chosen.note });
   document.querySelectorAll("#scenarioOpts .opt").forEach((btn,i) => { btn.disabled=true; if(i===idx) btn.classList.add("chosen"); });
   document.getElementById("scenarioFeedback").classList.add("show");
   document.getElementById("scenarioNext").classList.remove("hidden");
@@ -384,6 +419,7 @@ function pickRush(id){
   const opt = rushOptions.find(o => o.id === id);
   if(rushPicked.length === 1){
     Object.keys(opt.pts).forEach(k => scores[k] += opt.pts[k]);
+    synthesisLog.push({ skill:"Priorización", scene:"Hora pico", choice:opt.label, note:rushNotes[opt.id] });
   }
   choiceLog.push({ scene:"Hora pico (priorización)", choice:`Posición ${rushPicked.length}: ${opt.label}` });
   renderRush();
@@ -391,10 +427,31 @@ function pickRush(id){
 function closeRush(){ hideOverlay(); setDone(10); finishGame(); }
 
 // ---- Cierre (scoring oculto, no se muestra al candidato) ----
+function buildOverallSummary(pctByskill){
+  const entries = Object.keys(pctByskill).map(k => ({ k, label:SKILL_LABELS[k], pct:pctByskill[k] }));
+  entries.sort((a,b) => b.pct - a.pct);
+  const top = entries.slice(0,2).map(e => e.label);
+  const bottom = entries.slice(-2).map(e => e.label).reverse();
+  const avg = entries.reduce((s,e) => s+e.pct, 0) / entries.length;
+
+  let nivel;
+  if(avg >= 70) nivel = "En términos generales, el perfil se mostró sólido y consistente a lo largo del turno.";
+  else if(avg >= 45) nivel = "En términos generales, el perfil mostró un desempeño mixto, con fortalezas puntuales y otras aptitudes menos desarrolladas.";
+  else nivel = "En términos generales, el perfil mostró varias oportunidades de desarrollo a lo largo del turno.";
+
+  return `${nivel} Las aptitudes donde más se destacó fueron ${top.join(" y ")}. Las que más margen de mejora mostraron fueron ${bottom.join(" y ")}. Este resumen está armado en base a las respuestas concretas que se ven en el detalle de cada mesa, no es una evaluación clínica ni un diagnóstico formal — es una guía para conversar en la devolución.`;
+}
+
 function finishGame(){
   let total = 0;
-  Object.keys(SKILL_MAX).forEach(k => total += Math.min(1, scores[k]/SKILL_MAX[k]));
+  const pctByskill = {};
+  Object.keys(SKILL_MAX).forEach(k => {
+    const pct = Math.min(1, scores[k]/SKILL_MAX[k]);
+    pctByskill[k] = Math.round(pct*100);
+    total += pct;
+  });
   const totalScore = Math.round((total / Object.keys(SKILL_MAX).length) * 100);
+  const overallSummary = buildOverallSummary(pctByskill);
 
   showOverlay(`
     <div class="card">
@@ -417,7 +474,9 @@ function finishGame(){
       candidate_email: candidate.email,
       total_score: totalScore,
       scores: scores,
-      choices: choiceLog
+      choices: choiceLog,
+      synthesis: synthesisLog,
+      overall_summary: overallSummary
     })
   }).catch(err => console.error("Error guardando resultado:", err));
 }
