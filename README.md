@@ -1,4 +1,4 @@
-# El Salón — Simulador de Onboarding
+# La Maldo — Simulador de Onboarding
 
 Roleplay interactivo para validar aptitudes blandas de candidatos a Customer Success Executive (Onboarding).
 

@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>El Salón — Simulador de Onboarding</title>
+<title>La Maldo — Simulador de Onboarding</title>
 <style>
   :root{
     --fudo-orange: #FF5A1F;
@@ -36,17 +36,17 @@
     background: radial-gradient(circle, var(--grid-dot) 1.4px, transparent 1.4px) 0 0/26px 26px, var(--bg-floor);
     border-radius: 16px; border: 1px solid var(--line); box-shadow: 0 20px 50px -24px rgba(0,0,0,0.5); overflow:hidden; }
 
-  .barra{ position:absolute; left: 50%; top: 95%; transform: translate(-50%,-50%); width: 36%; height: 7%;
+  .barra{ position:absolute; left: 50%; top: 96%; transform: translate(-50%,-50%); width: 34%; height: 6%;
     background: var(--bg-dark); border-radius: 10px; display:flex; align-items:center; justify-content:center;
     font-size: 11.5px; font-weight:700; color: var(--fudo-orange); z-index:2; }
 
-  .table{ position:absolute; width: 13%; aspect-ratio: 1/1; transform: translate(-50%,-50%); z-index:3; cursor: default;
+  .table{ position:absolute; width: 11%; aspect-ratio: 1/1; transform: translate(-50%,-50%); z-index:3; cursor: default;
     transition: opacity 0.3s ease, transform 0.2s ease; }
   .table .top{ width:100%; height:100%; border-radius: 22%; background: var(--table-green); border: none;
     display:flex; align-items:center; justify-content:center; color: #fff;
     box-shadow: 0 8px 16px -8px rgba(0,0,0,0.35); position:relative; transition: background 0.2s ease, transform 0.2s ease; }
   .table.round .top{ border-radius: 50%; }
-  .table .table-label{ font-weight:800; font-size: 20px; }
+  .table .table-label{ font-weight:800; font-size: 17px; }
   .table.idle .top{ background: var(--table-green); }
   .table.active .top{ background: var(--table-red); animation: glow 1.1s ease-in-out infinite; }
   .table.done .top{ background: #A9B3AF; opacity:0.9; }
@@ -113,7 +113,7 @@
 <body>
 <div class="app">
   <div class="hud">
-    <div class="hud-left"><span class="dot"></span>FUDO · EL SALÓN</div>
+    <div class="hud-left"><span class="dot"></span>FUDO · LA MALDO</div>
     <div class="hud-right" id="hudStatus">Mesas atendidas: 0/8</div>
   </div>
   <div class="floor-wrap" id="floor">
@@ -130,16 +130,16 @@ const SUPABASE_URL = "https://xkqopmcfwxpajbvjgclg.supabase.co";
 const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhrcW9wbWNmd3hwYWpidmpnY2xnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk4MTYyMjAsImV4cCI6MjA5NTM5MjIyMH0._NB6PcBADxxkkogWHPCgzQovH9rreI2QoaKqiWgnFrs";
 
 const TABLE_POS = {
-  1:{x:8,y:11},
-  2:{x:8,y:26},
-  8:{x:31,y:40},
-  3:{x:31,y:69},
-  7:{x:54,y:69},
-  4:{x:42,y:84},
-  5:{x:54,y:84},
-  6:{x:76,y:69},
+  1:{x:12,y:13},
+  2:{x:12,y:32},
+  8:{x:34,y:46},
+  3:{x:32,y:70},
+  7:{x:56,y:70},
+  4:{x:42,y:83},
+  5:{x:60,y:83},
+  6:{x:80,y:70},
 };
-const BARRA_POS = { x: 50, y: 95 };
+const BARRA_POS = { x: 50, y: 96 };
 const TOTAL_TABLES = Object.keys(TABLE_POS).length;
 
 const singleScenes = {
